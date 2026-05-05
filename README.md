@@ -1,6 +1,6 @@
-# Recpter（リセプター）
+# Receptor（リセプター）
 
-> 思考アジリティ可視化アプリ  
+> 思考アジリティ可視化アプリ
 > ユーザーの思考ログをAIが分析し、思考の偏りを構造的に可視化することで、客観的な自己理解と柔軟な思考を育てる支援を行うWebアプリケーション。
 
 ![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
@@ -16,15 +16,15 @@
 
 ## 🛠 技術スタック
 
-|レイヤー    |技術                                                          |
-|--------|------------------------------------------------------------|
-|フロントエンド |Next.js (App Router) / TypeScript / Tailwind CSS / Shadcn/ui|
-|データ可視化  |Recharts（RadarChart）                                        |
-|認証      |Auth.js (NextAuth v5)                                       |
-|DB / ORM|PostgreSQL / Prisma                                         |
-|AI連携    |Google AI SDK / Gemini 1.5 Flash                            |
-|開発支援    |Claude Code / CLAUDE.md運用                                   |
-|デプロイ    |Render / Railway（予定）                                        |
+| レイヤー       | 技術                                                                   |
+| -------------- | ---------------------------------------------------------------------- |
+| フロントエンド | Next.js (App Router) / TypeScript / Framer Motion / @use-gesture/react |
+| データ可視化   | カスタムSVG（RadarChart・MindMap）                                     |
+| 認証           | Auth.js (NextAuth v5)                                                  |
+| DB / ORM       | PostgreSQL / Prisma                                                    |
+| AI連携         | Google AI SDK / Gemini 1.5 Flash                                       |
+| 開発支援       | Claude Code / CLAUDE.md運用                                            |
+| デプロイ       | Vercel + Neon（Vercel公式連携）                                        |
 
 -----
 
@@ -47,7 +47,7 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph Client ["Client Side"]
-        UI["Web Browser\n(Next.js / Recharts)"]
+        UI["Web Browser\n(Next.js)"]
     end
 
     subgraph Server ["Server Side (Next.js)"]
@@ -73,32 +73,25 @@ flowchart LR
 ## 📁 ディレクトリ構成
 
 ```
-src/
-├── app/
-│   ├── (auth)/           # 認証関連 (Login/Register)
-│   ├── api/
-│   │   ├── auth/         # Auth.js設定
-│   │   ├── logs/         # POST(新規分析) / PATCH(編集) / DELETE(削除)
-│   │   │   └── [id]/
-│   │   └── portfolio/    # GET(統計データ取得)
-│   ├── thought-log/      # 思考ログ管理画面
-│   ├── portfolio/        # ダッシュボード
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── ui/               # Shadcn/ui
-│   ├── layout/           # Navbar, Sidebar, Footer
-│   └── charts/           # RadarChart, AgilityScoreBadge
-├── lib/
-│   ├── prisma.ts         # Prisma Client初期化
-│   ├── gemini.ts         # Logic A: Gemini API連携
-│   ├── agility-logic.ts  # Logic B: Agility Score算出
-│   └── utils.ts
-├── types/
-│   ├── index.d.ts
-│   └── api.ts
-└── prisma/
-    └── schema.prisma
+app/                           # App Router (Pages, Layouts, API)
+├── (auth)/                    # 認証関連 (Login/Register)
+├── api/                       # API Endpoints
+│   ├── auth/                  # Auth.js (NextAuth) 設定
+│   ├── logs/                  # POST(新規分析)/PATCH(編集)/DELETE(削除)
+│   │   └── [id]/              # 個別ログ操作用
+│   └── portfolio/             # GET(統計データ取得)
+├── components/                # UI Components（カスタム実装、Shadcn不使用）
+├── lib/                       # Shared Utilities & Logic
+│   ├── prisma.ts              # Prisma Client 初期化
+│   ├── gemini.ts              # Logic A: Gemini API 連携（新規投稿時のみ使用）
+│   └── agility-logic.ts      # Logic B: スコア算出（編集・削除・取得時の再計算）
+├── types/                     # TypeScript 型定義
+│   ├── index.d.ts             # 共通型定義
+│   └── api.ts                 # APIレスポンス等の型定義
+├── layout.tsx                 # 共通レイアウト・フォント設定
+└── page.tsx                   # ホーム画面
+prisma/
+└── schema.prisma              # Prisma Schema (Table definitions)
 ```
 
 -----
@@ -111,13 +104,13 @@ Gemini 1.5 Flashを使用し、単一ログから5カテゴリのスコアをJSO
 
 **思考カテゴリ**
 
-|カテゴリ       |説明                |
-|-----------|------------------|
-|Analytical |論理思考・問題分解・根拠に基づく判断|
-|Strategic  |長期視点・目標設計・全体最適    |
-|Exploratory|未知への好奇心・仮説検証・アイデア |
-|Reflective |自己客観化・振り返り・気づきの言語化|
-|Social     |他者理解・共感・チーム協働     |
+| カテゴリ    | 説明                                 |
+| ----------- | ------------------------------------ |
+| Analytical  | 論理思考・問題分解・根拠に基づく判断 |
+| Strategic   | 長期視点・目標設計・全体最適         |
+| Exploratory | 未知への好奇心・仮説検証・アイデア   |
+| Reflective  | 自己客観化・振り返り・気づきの言語化 |
+| Social      | 他者理解・共感・チーム協働           |
 
 ### Logic B：Agility Score算出（`lib/agility-logic.ts`）
 
@@ -127,11 +120,11 @@ Gemini 1.5 Flashを使用し、単一ログから5カテゴリのスコアをJSO
 Agility Score = (多様性 × 0.4) + (更新度 × 0.3) + (領域数 × 0.3)
 ```
 
-|要素 |内容               |
-|---|-----------------|
-|多様性|5カテゴリのスコア分布（標準偏差）|
-|更新度|直近ログと過去平均の乖離     |
-|領域数|スコア0.5超のカテゴリ数    |
+| 要素   | 内容                              |
+| ------ | --------------------------------- |
+| 多様性 | 5カテゴリのスコア分布（標準偏差） |
+| 更新度 | 直近ログと過去平均の乖離          |
+| 領域数 | スコア0.5超のカテゴリ数           |
 
 -----
 
@@ -174,7 +167,7 @@ erDiagram
 
 ### Sprint 1：基盤構築
 
-- [ ] Next.jsプロジェクト初期化（Shadcn/ui・Tailwind）
+- [ ] Next.jsプロジェクト初期化
 - [ ] Prisma Schema定義・DBマイグレーション
 - [ ] Auth.js (v5) セットアップ・認証ガード実装
 - [ ] 共有レイアウト（Nav/Sidebar）作成
@@ -190,8 +183,29 @@ erDiagram
 
 - [ ] Agility Score算出アルゴリズム実装（`lib/agility-logic.ts`）※完全手動
 - [ ] 算出ロジックの単体テスト（境界値対応）
-- [ ] Rechartsレーダーチャート実装
+- [ ] カスタムSVGレーダーチャート実装
 - [ ] ポートフォリオ・ダッシュボード統合
+
+-----
+
+## 🌿 ブランチ戦略
+
+実務的な現場開発を想定し、Lightweight Git Flowを採用。
+
+```
+main        ← 本番相当（Vercelのproductionデプロイ先）
+ └── develop ← 統合ブランチ（Vercelのpreviewデプロイ先）
+       └── feat/sprint-1-2-prisma-schema  ← 使い捨て（マージ後削除）
+       └── feat/sprint-1-4-auth-js
+       └── fix/バグ名
+```
+
+| ブランチ     | 役割                               |
+| ------------ | ---------------------------------- |
+| `main`       | 常にデプロイ可能な本番相当ブランチ |
+| `develop`    | スプリント統合・動作確認用ブランチ |
+| `feat/〇〇`  | タスク単位の使い捨てフィーチャーブランチ |
+| `fix/〇〇`   | バグ修正用の使い捨てブランチ       |
 
 -----
 
