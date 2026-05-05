@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ThinkingCategory {
+  analytical
+  strategic
+  exploratory
+  reflective
+  social
+}
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime     @default(now())
+  logs          ThoughtLog[]
+
+  @@map("users")
+}
+
+model ThoughtLog {
+  id             String          @id @default(uuid())
+  userId         String
+  content        String
+  createdAt      DateTime        @default(now())
+  user           User            @relation(fields: [userId], references: [id])
+  analysisResult AnalysisResult?
+
+  @@map("thought_logs")
+}
+
+model AnalysisResult {
+  id           String          @id @default(uuid())
+  thoughtLogId String          @unique
+  createdAt    DateTime        @default(now())
+  log          ThoughtLog      @relation(fields: [thoughtLogId], references: [id])
+  scores       AnalysisScore[]
+
+  @@map("analysis_results")
+}
+
+model AnalysisScore {
+  id               String           @id @default(uuid())
+  analysisResultId String
+  category         ThinkingCategory
+  score            Float
+  analysis         AnalysisResult   @relation(fields: [analysisResultId], references: [id])
+
+  @@map("analysis_scores")
+}
