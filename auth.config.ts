@@ -6,13 +6,4 @@ export const authConfig = {
   pages: {
     signIn: "/login",
   },
-  callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      if (!isLoggedIn) {
-        return Response.redirect(new URL("/login", nextUrl));
-      }
-      return true;
-    },
-  },
 } satisfies NextAuthConfig;
