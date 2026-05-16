@@ -180,7 +180,7 @@ erDiagram
 - [x] `POST /api/logs` エンドポイント実装
 - [x] 思考ログ入力フォームUI（別PJ完了）
 - [x] Loading状態管理・ログ履歴一覧（別PJ完了）
-- [ ] `GET /api/logs` エンドポイント実装
+- [x] `GET /api/logs` エンドポイント実装
 
 ### Sprint 3：スコア計算・可視化
 
