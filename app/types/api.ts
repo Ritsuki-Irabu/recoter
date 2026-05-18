@@ -25,3 +25,9 @@ export type LogItem = {
 export type GetLogsResponse = {
     logs: LogItem[];
 };
+
+export type AgilityResponse = {
+    score: number;
+    level: "None" | "Beginner" | "Active";
+    isEmpty: boolean;
+};
